@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function userExists() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isRole(r) {
+      return userExists() && getRole() == r;
+    }
+
+    function canRead() {
+      return isAuth() && (isRole('admin') || isRole('manager') || isRole('owner') || !userExists());
+    }
+
+    function canWrite() {
+      return isAuth() && (isRole('admin') || isRole('manager'));
+    }
+
+    match /users/{userId} {
+      allow read: if isAuth() && (request.auth.uid == userId || isRole('admin'));
+      allow create: if isAuth() && request.auth.uid == userId;
+      allow update, delete: if isRole('admin');
+    }
+
+    match /transactions/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /products/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /expenses/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /sales_daily/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /kpi_targets/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    // New collections for Phase 1-5
+    match /sales_data/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /market_historical_data/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /recommendations/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /processed_stats/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+
+    match /prediction_history/{id} {
+      allow read: if canRead();
+      allow write: if canWrite();
+    }
+  }
+}

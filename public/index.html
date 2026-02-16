@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics Dashboard | Business Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="toast-container" class="toast-container"></div>
+  <div id="app">
+    <!-- Login screen -->
+    <main id="login-screen" class="login-screen">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="logo-mark"></div>
+          <h1>Analytics Dashboard</h1>
+          <p>Track and monitor business performance with data-driven insights.</p>
+        </div>
+        <form id="login-form" class="login-form">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <p id="login-error" class="error-msg" aria-live="polite"></p>
+          <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+        <p class="login-footer">Restaurant business performance • Descriptive, predictive & prescriptive analytics</p>
+      </div>
+    </main>
+
+    <!-- Main app (after login) -->
+    <div id="main-app" class="main-app hidden">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="logo-mark small"></div>
+          <span>Analytics</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#dashboard" class="nav-item active" data-route="dashboard">
+            <span class="nav-icon">◉</span>
+            <span>Dashboard</span>
+          </a>
+          <a href="#reports" class="nav-item" data-route="reports">
+            <span class="nav-icon">▣</span>
+            <span>Reports</span>
+          </a>
+          <a href="#data-entry" class="nav-item" data-route="data-entry">
+            <span class="nav-icon">⊕</span>
+            <span>Data Entry</span>
+          </a>
+          <a href="#notifications" class="nav-item" data-route="notifications">
+            <span class="nav-icon">🔔</span>
+            <span>Notifications</span>
+          </a>
+          <a href="#users" class="nav-item nav-admin" data-route="users">
+            <span class="nav-icon">👤</span>
+            <span>User Management</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <p class="user-role" id="user-role-badge"></p>
+          <button type="button" id="btn-logout" class="btn btn-ghost btn-block">Sign out</button>
+        </div>
+      </aside>
+      <div class="content-area">
+        <header class="topbar">
+          <h2 id="page-title">Dashboard</h2>
+          <div class="topbar-actions">
+            <span class="welcome" id="welcome-email"></span>
+          </div>
+        </header>
+        <div id="page-content" class="page-content">
+          <!-- Dashboard -->
+          <section id="view-dashboard" class="view active">
+            <div class="dashboard-toolbar" id="dashboard-toolbar">
+              <button type="button" id="btn-load-sample-data" class="btn btn-ghost">Load sample data</button>
+              <span class="toolbar-hint">Add demo products, sales & expenses to try the dashboard</span>
+            </div>
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <span class="kpi-label">Gross Sales</span>
+                <span class="kpi-value" id="kpi-gross-sales">₱0</span>
+                <span class="kpi-period">This month</span>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Net Sales</span>
+                <span class="kpi-value" id="kpi-net-sales">₱0</span>
+                <span class="kpi-period">This month</span>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Transactions</span>
+                <span class="kpi-value" id="kpi-transactions">0</span>
+                <span class="kpi-period">This month</span>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Avg. Order Value</span>
+                <span class="kpi-value" id="kpi-aov">₱0</span>
+                <span class="kpi-period">This month</span>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Total Expenses</span>
+                <span class="kpi-value" id="kpi-expenses">₱0</span>
+                <span class="kpi-period">This month</span>
+              </div>
+            </div>
+            <div class="charts-row">
+              <div class="chart-card">
+                <h3>Sales trend</h3>
+                <div class="chart-wrap"><canvas id="chart-sales-trend" aria-label="Sales over time"></canvas></div>
+              </div>
+              <div class="chart-card">
+                <h3>Sales by category</h3>
+                <div class="chart-wrap"><canvas id="chart-category" aria-label="Sales by category"></canvas></div>
+              </div>
+            </div>
+            <div class="charts-row">
+              <div class="chart-card full">
+                <h3>Predictive Analytics</h3>
+                <div class="chart-tabs">
+                  <button type="button" class="chart-tab active" data-chart="sales-forecast">7-Day Sales Forecast</button>
+                  <button type="button" class="chart-tab" data-chart="menu-demand">Menu Demand</button>
+                  <button type="button" class="chart-tab" data-chart="forecast-actual">Forecast vs Actual</button>
+                </div>
+                <div id="chart-sales-forecast" class="chart-tab-panel active">
+                  <div class="chart-wrap"><canvas id="chart-predicted-sales" aria-label="Predicted Daily Sales"></canvas></div>
+                  <div id="sales-forecast-status" class="chart-status"></div>
+                </div>
+                <div id="chart-menu-demand" class="chart-tab-panel">
+                  <div class="chart-wrap"><canvas id="chart-menu-demand" aria-label="Expected Menu Demand"></canvas></div>
+                  <div id="menu-demand-status" class="chart-status"></div>
+                </div>
+                <div id="chart-forecast-actual" class="chart-tab-panel">
+                  <div class="chart-wrap"><canvas id="chart-forecast-actual" aria-label="Forecast vs Actual Performance"></canvas></div>
+                  <div id="forecast-actual-status" class="chart-status"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Reports -->
+          <section id="view-reports" class="view">
+            <div class="reports-toolbar">
+              <label>Period</label>
+              <select id="reports-period">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
+            </div>
+            <div class="report-cards">
+              <div class="report-card">
+                <h3>Sales summary</h3>
+                <div id="report-sales-summary" class="report-body"></div>
+              </div>
+              <div class="report-card">
+                <h3>Expense summary</h3>
+                <div id="report-expense-summary" class="report-body"></div>
+              </div>
+              <div class="report-card">
+                <h3>Top products</h3>
+                <div id="report-top-products" class="report-body"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Data Entry -->
+          <section id="view-data-entry" class="view">
+            <div class="data-entry-tabs">
+              <button type="button" class="tab active" data-tab="sale">Add sale</button>
+              <button type="button" class="tab" data-tab="product">Add product</button>
+              <button type="button" class="tab" data-tab="expense">Add expense</button>
+              <button type="button" class="tab" data-tab="upload">Upload CSV/Excel</button>
+            </div>
+            <div id="tab-sale" class="tab-panel active">
+              <form id="form-sale" class="data-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="sale-date">Date</label>
+                    <input type="date" id="sale-date" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="sale-gross">Gross amount (₱)</label>
+                    <input type="number" id="sale-gross" step="0.01" min="0" required placeholder="0.00" />
+                  </div>
+                  <div class="form-group">
+                    <label for="sale-net">Net amount (₱)</label>
+                    <input type="number" id="sale-net" step="0.01" min="0" required placeholder="0.00" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="sale-notes">Notes (optional)</label>
+                  <input type="text" id="sale-notes" placeholder="e.g. receipt #" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save sale</button>
+              </form>
+            </div>
+            <div id="tab-product" class="tab-panel">
+              <form id="form-product" class="data-form">
+                <div class="form-group">
+                  <label for="product-name">Product name</label>
+                  <input type="text" id="product-name" required placeholder="e.g. Chicken bucket" />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="product-category">Category</label>
+                    <input type="text" id="product-category" required placeholder="e.g. Main" />
+                  </div>
+                  <div class="form-group">
+                    <label for="product-price">Selling price (₱)</label>
+                    <input type="number" id="product-price" step="0.01" min="0" required placeholder="0.00" />
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add product</button>
+              </form>
+            </div>
+            <div id="tab-expense" class="tab-panel">
+              <form id="form-expense" class="data-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="expense-date">Date</label>
+                    <input type="date" id="expense-date" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="expense-amount">Amount (₱)</label>
+                    <input type="number" id="expense-amount" step="0.01" min="0" required placeholder="0.00" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="expense-desc">Description</label>
+                  <input type="text" id="expense-desc" required placeholder="e.g. Supplies" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save expense</button>
+              </form>
+            </div>
+            <div id="tab-upload" class="tab-panel">
+              <div class="upload-container">
+                <div class="upload-section">
+                  <h3>Upload Data File</h3>
+                  <div class="form-group">
+                    <label for="data-type">Data Type</label>
+                    <select id="data-type" required>
+                      <option value="">Select data type...</option>
+                      <option value="sales">Sales Data</option>
+                      <option value="market">Market Data</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="file-upload">Choose File (CSV or Excel)</label>
+                    <input type="file" id="file-upload" accept=".csv,.xlsx,.xls" required />
+                    <small>Supported formats: CSV, Excel (.xlsx, .xls)</small>
+                  </div>
+                  <button type="button" id="btn-preview-file" class="btn btn-secondary">Preview File</button>
+                </div>
+
+                <div id="preview-section" class="preview-section hidden">
+                  <h3>File Preview & Column Mapping</h3>
+                  <div class="preview-table-container">
+                    <table id="preview-table" class="preview-table">
+                      <thead id="preview-head"></thead>
+                      <tbody id="preview-body"></tbody>
+                    </table>
+                  </div>
+                  
+                  <div class="mapping-section">
+                    <h4>Map Your Columns to Required Fields</h4>
+                    <div id="mapping-container"></div>
+                  </div>
+                  
+                  <div class="upload-actions">
+                    <button type="button" id="btn-save-mapped-data" class="btn btn-primary">Save Mapped Data</button>
+                    <button type="button" id="btn-cancel-upload" class="btn btn-ghost">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Notifications -->
+          <section id="view-notifications" class="view">
+            <div class="notifications-header">
+              <h3>AI Insights & Recommendations</h3>
+              <p class="notifications-subtitle">Smart recommendations based on your data analysis</p>
+            </div>
+            <div id="notifications-container" class="notifications-container">
+              <div class="notification-card">
+                <div class="notification-icon">🤖</div>
+                <div class="notification-content">
+                  <h4>Welcome to AI Insights</h4>
+                  <p>Your AI-powered recommendations will appear here once data analysis begins.</p>
+                  <span class="notification-time">Just now</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- User Management (Admin) -->
+          <section id="view-users" class="view">
+            <div class="users-toolbar">
+              <button type="button" id="btn-add-user" class="btn btn-primary">Add user</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add user -->
+  <dialog id="modal-user">
+    <form id="form-user" method="dialog">
+      <h3>Add user</h3>
+      <div class="form-group">
+        <label for="new-user-email">Email</label>
+        <input type="email" id="new-user-email" required placeholder="user@example.com" />
+      </div>
+      <div class="form-group">
+        <label for="new-user-password">Password</label>
+        <input type="password" id="new-user-password" required placeholder="••••••••" minlength="6" />
+      </div>
+      <div class="form-group">
+        <label for="new-user-role">Role</label>
+        <select id="new-user-role">
+          <option value="owner">Owner</option>
+          <option value="manager">Manager</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <p id="user-form-error" class="error-msg"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="modal-user-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create user</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Config is in app.js (firebaseConfig). Remove config.js script to avoid module/load errors. -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
