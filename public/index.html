@@ -23,11 +23,11 @@
         <form id="login-form" class="login-form">
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email" />
+            <input type="email" id="email" required placeholder="you@example.com" autocomplete="email" />
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password" />
+            <input type="password" id="password" required placeholder="••••••••" autocomplete="current-password" />
           </div>
           <p id="login-error" class="error-msg" aria-live="polite"></p>
           <button type="submit" class="btn btn-primary btn-block">Sign in</button>
@@ -305,6 +305,8 @@
           <section id="view-users" class="view">
             <div class="users-toolbar">
               <button type="button" id="btn-add-user" class="btn btn-primary">Add user</button>
+              <button type="button" id="btn-reset-data" class="btn btn-danger">Reset all data</button>
+              <button type="button" id="btn-load-sample-data" class="btn btn-secondary">Load sample data</button>
             </div>
             <div class="table-wrap">
               <table class="data-table">

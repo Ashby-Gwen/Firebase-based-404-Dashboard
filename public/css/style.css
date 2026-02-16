@@ -553,6 +553,24 @@ body {
   color: var(--text);
 }
 
+.btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ef4444;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #9ca3af;
+}
+
 .chart-tabs {
   display: flex;
   gap: 0.5rem;

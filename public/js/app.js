@@ -1,15 +1,15 @@
 (function () {
   'use strict';
 
-  // Firebase Configuration - Load from environment for security
+  // Firebase Configuration
   const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY || "AIzaSyCzHn7WH1kbvEJP-w4OjdFH_oeXOS7Hfmc",
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN || "dashboard-ed869.firebaseapp.com",
-    projectId: process.env.FIREBASE_PROJECT_ID || "dashboard-ed869",
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || "dashboard-ed869.firebasestorage.app",
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || "77636318964",
-    appId: process.env.FIREBASE_APP_ID || "1:77636318964:web:3092c08cb03d32144650a1",
-    measurementId: process.env.FIREBASE_MEASUREMENT_ID || "G-V3S1VTKCZT"
+    apiKey: "AIzaSyCzHn7WH1kbvEJP-w4OjdFH_oeXOS7Hfmc",
+    authDomain: "dashboard-ed869.firebaseapp.com",
+    projectId: "dashboard-ed869",
+    storageBucket: "dashboard-ed869.firebasestorage.app",
+    messagingSenderId: "77636318964",
+    appId: "1:77636318964:web:3092c08cb03d32144650a1",
+    measurementId: "G-V3S1VTKCZT"
   };
 
   if (!firebase.apps.length) {
@@ -304,6 +304,56 @@
 
   var btnLoadSample = document.getElementById('btn-load-sample-data');
   if (btnLoadSample) btnLoadSample.addEventListener('click', loadSampleData);
+
+  // Reset data function for admin
+  function resetAllData() {
+    if (!currentUser) {
+      showToast('Please sign in to reset data.', 'error');
+      return;
+    }
+    if (userRole !== 'admin') {
+      showToast('Only Admin can reset data.', 'error');
+      return;
+    }
+    
+    if (!confirm('⚠️ WARNING: This will permanently delete ALL data including:\n\n• Sales transactions\n• Products\n• Expenses\n• Uploaded CSV data\n• Analytics results\n• AI recommendations\n\nThis action cannot be undone. Continue?')) {
+      return;
+    }
+
+    var btn = document.getElementById('btn-reset-data');
+    if (btn) { btn.disabled = true; btn.textContent = 'Resetting…'; }
+
+    // Collections to clear
+    var collections = [
+      'transactions', 'products', 'expenses', 
+      'sales_data', 'market_historical_data', 
+      'recommendations', 'processed_stats', 'prediction_history'
+    ];
+
+    var promises = collections.map(function(collectionName) {
+      return db.collection(collectionName).get().then(function(snapshot) {
+        var batch = db.batch();
+        snapshot.forEach(function(doc) {
+          batch.delete(doc.ref);
+        });
+        return batch.commit();
+      });
+    });
+
+    Promise.all(promises).then(function() {
+      if (btn) { btn.disabled = false; btn.textContent = 'Reset all data'; }
+      loadDashboard();
+      loadReports();
+      loadUsers();
+      showToast('All data has been reset successfully.', 'success');
+    }).catch(function(err) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Reset all data'; }
+      showToast('Error resetting data: ' + (err.message || 'Unknown error'), 'error');
+    });
+  }
+
+  var btnResetData = document.getElementById('btn-reset-data');
+  if (btnResetData) btnResetData.addEventListener('click', resetAllData);
 
   function loadDashboard() {
     var now = new Date();
